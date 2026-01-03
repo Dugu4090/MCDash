@@ -30,6 +30,13 @@ public class StoreRoute extends DefaultHandler {
     private static final String SPIGET_URL = "https://api.spiget.org/v2/";
     private static final String HANGAR_URL = "https://hangar.papermc.io/api/v1";
 
+    private static final String[] POPULAR_PAPER_PLUGINS = {
+        "ViaVersion", "ViaBackwards", "ViaRewind", "Velocity", "PaperMC",
+        "LuckPerms", "PlaceholderAPI", "EssentialsX", "GeyserMC", "Floodgate",
+        "WorldEdit", "FastAsyncWorldEdit", "Chunky", "Spark", "Carpet",
+        "Ledger", "Purpur", "Foliar", "ClothConfig", "Hydrogen"
+    };
+
     @Override
     public void get(Request request, ResponseController response) throws Exception {
         String query = request.getQuery().containsKey("query") ? getStringFromQuery(request, "query") : "";
@@ -128,6 +135,27 @@ public class StoreRoute extends DefaultHandler {
     private List<PluginInfo> fetchHangarPlugins(String query, int page) throws Exception {
         List<PluginInfo> plugins = new ArrayList<>();
 
+        if (!query.isEmpty()) {
+            String queryLower = query.toLowerCase();
+            for (String pluginName : POPULAR_PAPER_PLUGINS) {
+                if (pluginName.toLowerCase().contains(queryLower)) {
+                    PluginInfo info = fetchHangarPluginBySlug(pluginName);
+                    if (info != null) {
+                        plugins.add(info);
+                    }
+                }
+            }
+
+            if (plugins.isEmpty()) {
+                PluginInfo direct = fetchHangarPluginBySlug(query);
+                if (direct != null) {
+                    plugins.add(direct);
+                }
+            }
+
+            return plugins;
+        }
+
         HttpUrl.Builder urlBuilder = HttpUrl.parse(HANGAR_URL + "/projects").newBuilder()
                 .addQueryParameter("limit", "50")
                 .addQueryParameter("offset", String.valueOf((page - 1) * 50));
@@ -164,6 +192,46 @@ public class StoreRoute extends DefaultHandler {
         }
 
         return plugins;
+    }
+
+    private PluginInfo fetchHangarPluginBySlug(String slug) {
+        try {
+            String normalizedSlug = slug.trim().replace(" ", "");
+            HttpUrl url = HttpUrl.parse(HANGAR_URL + "/projects/" + normalizedSlug).newBuilder().build();
+
+            try (Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute()) {
+                if (httpResponse.code() != 200) {
+                    return null;
+                }
+
+                String body = httpResponse.body() != null ? httpResponse.body().string() : "";
+                if (body.isEmpty()) return null;
+
+                JsonNode project = mapper.readTree(body);
+
+                JsonNode stats = project.has("stats") ? project.get("stats") : null;
+                int downloads = stats != null && stats.has("downloads") ? stats.get("downloads").asInt() : 0;
+
+                String namespace = "";
+                if (project.has("namespace") && project.get("namespace").has("slug")) {
+                    namespace = project.get("namespace").get("slug").asText();
+                }
+
+                String avatarUrl = project.has("avatarUrl") ? project.get("avatarUrl").asText() : null;
+
+                return new PluginInfo(
+                        "hangar_" + namespace,
+                        project.has("name") ? project.get("name").asText() : slug,
+                        project.has("description") ? project.get("description").asText() : "",
+                        avatarUrl,
+                        downloads,
+                        "latest",
+                        true
+                );
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static class PluginInfo {
