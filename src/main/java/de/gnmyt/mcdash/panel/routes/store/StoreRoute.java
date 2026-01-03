@@ -213,11 +213,26 @@ public class StoreRoute extends DefaultHandler {
                 int downloads = stats != null && stats.has("downloads") ? stats.get("downloads").asInt() : 0;
 
                 String namespace = "";
-                if (project.has("namespace") && project.get("namespace").has("slug")) {
-                    namespace = project.get("namespace").get("slug").asText();
+                String owner = "";
+                if (project.has("namespace")) {
+                    if (project.get("namespace").has("slug")) {
+                        namespace = project.get("namespace").get("slug").asText();
+                    }
+                    if (project.get("namespace").has("owner")) {
+                        owner = project.get("namespace").get("owner").asText();
+                    }
                 }
 
                 String avatarUrl = project.has("avatarUrl") ? project.get("avatarUrl").asText() : null;
+
+                String latestVersion = "latest";
+                HttpUrl versionUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace + "/latest").newBuilder().build();
+                try (Response versionResponse = client.newCall(new okhttp3.Request.Builder().url(versionUrl).build()).execute()) {
+                    if (versionResponse.code() == 200 && versionResponse.body() != null) {
+                        String v = versionResponse.body().string();
+                        if (!v.isEmpty()) latestVersion = v;
+                    }
+                }
 
                 return new PluginInfo(
                         "hangar_" + namespace,
@@ -225,7 +240,7 @@ public class StoreRoute extends DefaultHandler {
                         project.has("description") ? project.get("description").asText() : "",
                         avatarUrl,
                         downloads,
-                        "latest",
+                        latestVersion,
                         true
                 );
             }
@@ -272,6 +287,9 @@ public class StoreRoute extends DefaultHandler {
                 String namespace = actualId;
                 HttpUrl infoUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace).newBuilder().build();
 
+                String owner = "";
+                String latestVersion = "";
+
                 try (Response infoResponse = client.newCall(new okhttp3.Request.Builder().url(infoUrl).build()).execute()) {
                     if (infoResponse.code() != 200) {
                         response.code(404).message("The plugin with the id '" + pluginId + "' does not exist");
@@ -286,9 +304,24 @@ public class StoreRoute extends DefaultHandler {
 
                     JsonNode hangarNode = mapper.readTree(infoBody);
                     pluginName = hangarNode.has("name") ? hangarNode.get("name").asText() : namespace;
+
+                    if (hangarNode.has("namespace") && hangarNode.get("namespace").has("owner")) {
+                        owner = hangarNode.get("namespace").get("owner").asText();
+                    }
                 }
 
-                fileUrl = HANGAR_URL + "/projects/" + namespace + "/latest/download";
+                HttpUrl versionUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace + "/latest").newBuilder().build();
+                try (Response versionResponse = client.newCall(new okhttp3.Request.Builder().url(versionUrl).build()).execute()) {
+                    if (versionResponse.code() == 200 && versionResponse.body() != null) {
+                        latestVersion = versionResponse.body().string();
+                    }
+                }
+
+                if (latestVersion.isEmpty()) {
+                    latestVersion = "latest";
+                }
+
+                fileUrl = "https://hangarcdn.papermc.io/plugins/" + owner + "/" + namespace + "/versions/" + latestVersion + "/PAPER/" + pluginName.replace(" ", "") + "-" + latestVersion + ".jar";
                 break;
 
             case "spiget":
