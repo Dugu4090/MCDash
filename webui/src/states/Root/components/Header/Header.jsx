@@ -6,9 +6,7 @@ import {useLocation} from "react-router-dom";
 import AccountMenu from "@/states/Root/components/Header/components/AccountMenu";
 import {t} from "i18next";
 
-const drawerWidth = 240;
-
-export const Header = ({sidebarOpen, toggleSidebar}) => {
+export const Header = ({sidebarOpen, toggleSidebar, isMobile}) => {
     const theme = useTheme();
     const location = useLocation();
 
@@ -28,17 +26,12 @@ export const Header = ({sidebarOpen, toggleSidebar}) => {
 
     return (
         <AppBar position="fixed" sx={{ 
-            width: { md: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%' },
-            ml: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
+            width: '100%',
             backgroundColor: 'background.paper',
             color: 'text.primary',
             boxShadow: 'none',
             borderBottom: '1px solid',
             borderColor: 'divider',
-            transition: theme.transitions.create(['width', 'margin'], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
             zIndex: theme.zIndex.drawer + 1,
         }}>
             <AccountMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>

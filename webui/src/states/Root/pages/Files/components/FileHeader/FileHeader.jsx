@@ -1,4 +1,4 @@
-import {Box, Button, Chip, FormControlLabel, IconButton, LinearProgress, Stack, Switch, TextField, Tooltip, Typography} from "@mui/material";
+import {Box, Button, FormControlLabel, IconButton, LinearProgress, Stack, Switch, TextField, Tooltip, Typography} from "@mui/material";
 import {Close, CreateNewFolder, UploadFile, Archive, Unarchive, Delete, Download, CheckBox, NoteAdd, ArrowBack} from "@mui/icons-material";
 import NewFolderDialog from "@/states/Root/pages/Files/components/FileHeader/components/NewFolderDialog";
 import React, {useState} from "react";
@@ -89,7 +89,7 @@ export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile
     };
 
     return (
-        <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", mt: 2, mb: 2, flexWrap: "wrap", gap: 2}}>
+        <Box sx={{mb: 2}}>
             <NewFolderDialog open={folderDialogOpen} setOpen={setFolderDialogOpen} updateFiles={updateFiles}
                              directory={directory} setSnackbar={setSnackbar}/>
             
@@ -103,88 +103,83 @@ export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile
                     </Typography>
                 </Stack>
             ) : (
-                <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-                    <Tooltip title={t("files.go_back")}>
-                        <IconButton onClick={goBack} disabled={directory === "/"}>
-                            <ArrowBack />
-                        </IconButton>
-                    </Tooltip>
-                    <Typography variant="h5" fontWeight={500}>{t("nav.files")}</Typography>
-                    {directory.split("/").filter(d => d).map((dir, index) => (
-                        <Chip key={index} label={dir} size="small" 
-                              onClick={() => setDirectory("/" + directory.split("/").slice(1, directory.split("/").indexOf(dir) + 2).join("/") + "/")}
+                <>
+                    <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                        <Typography variant="h5" fontWeight={500}>{t("nav.files")}</Typography>
+                        <FormControlLabel
+                            control={<Switch checked={selectionMode} onChange={() => setSelectionMode(!selectionMode)} size="small"/>}
+                            label={t("files.selection_mode")}
                         />
-                    ))}
-                </Stack>
-            )}
+                    </Stack>
+                    
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+                        {directory === "/" ? "/" : directory}
+                    </Typography>
 
-            {selectionMode && currentFile === null && (
-                <Stack direction="row" alignItems="center" gap={1}>
-                    <FormControlLabel 
-                        control={<CheckBox checked={allSelected} onChange={onSelectAll} />}
-                        label={`${selectedCount} ${t("files.selected")}`}
-                    />
-                    <Tooltip title={t("files.archive")}>
-                        <IconButton color="warning" onClick={onArchive} disabled={selectedCount === 0}>
-                            <Archive/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.unarchive")}>
-                        <IconButton color="info" onClick={onUnarchive} disabled={selectedCount === 0}>
-                            <Unarchive/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.download")}>
-                        <IconButton color="primary" onClick={onDownload} disabled={selectedCount === 0}>
-                            <Download/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.delete")}>
-                        <IconButton color="error" onClick={onDelete} disabled={selectedCount === 0}>
-                            <Delete/>
-                        </IconButton>
-                    </Tooltip>
-                    <IconButton onClick={clearSelection}>
-                        <Close/>
-                    </IconButton>
-                </Stack>
-            )}
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                        <Tooltip title={t("files.go_back")}>
+                            <IconButton onClick={goBack} disabled={directory === "/"} size="small">
+                                <ArrowBack fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("files.upload_file")}>
+                            <IconButton color="primary" onClick={upload} size="small">
+                                <UploadFile fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("files.create_folder.title")}>
+                            <IconButton color="primary" onClick={() => setFolderDialogOpen(true)} size="small">
+                                <CreateNewFolder fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("files.new_file")}>
+                            <IconButton color="primary" onClick={() => setNewFileDialogOpen(true)} size="small">
+                                <NoteAdd fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
 
-            {!selectionMode && currentFile === null && (
-                <Stack direction="row" spacing={1} alignItems="center">
-                    <Tooltip title={t("files.upload_file")}>
-                        <IconButton color="primary" onClick={upload}>
-                            <UploadFile/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.create_folder.title")}>
-                        <IconButton color="primary" onClick={() => setFolderDialogOpen(true)}>
-                            <CreateNewFolder/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.new_file")}>
-                        <IconButton color="primary" onClick={() => setNewFileDialogOpen(true)}>
-                            <NoteAdd/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.selection_mode")}>
-                        <FormControlLabel 
-                            control={<Switch checked={selectionMode} onChange={() => setSelectionMode(!selectionMode)} />}
-                            label=""
-                        />
-                    </Tooltip>
-                </Stack>
+                    {selectionMode && (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2 }}>
+                            <FormControlLabel
+                                control={<CheckBox checked={allSelected} onChange={onSelectAll} size="small"/>}
+                                label={`${selectedCount} ${t("files.selected")}`}
+                            />
+                            <Tooltip title={t("files.archive")}>
+                                <IconButton color="warning" onClick={onArchive} disabled={selectedCount === 0} size="small">
+                                    <Archive fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("files.unarchive")}>
+                                <IconButton color="info" onClick={onUnarchive} disabled={selectedCount === 0} size="small">
+                                    <Unarchive fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("files.download")}>
+                                <IconButton color="primary" onClick={onDownload} disabled={selectedCount === 0} size="small">
+                                    <Download fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("files.delete")}>
+                                <IconButton color="error" onClick={onDelete} disabled={selectedCount === 0} size="small">
+                                    <Delete fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                            <IconButton onClick={clearSelection} size="small">
+                                <Close fontSize="small" />
+                            </IconButton>
+                        </Stack>
+                    )}
+                </>
             )}
 
             {uploadProgress.active && (
-                <Box sx={{display: "flex", alignItems: "center", gap: 2, minWidth: 200}}>
-                    <Box sx={{flexGrow: 1}}>
-                        <LinearProgress variant="determinate" value={uploadProgress.percent} sx={{height: 8, borderRadius: 4}}/>
-                        <Stack direction="row" justifyContent="space-between" sx={{mt: 0.5}}>
-                            <Typography variant="caption">{uploadProgress.percent}%</Typography>
-                            <Typography variant="caption">{formatBytes(uploadProgress.loaded)} / {formatBytes(uploadProgress.total)}</Typography>
-                        </Stack>
-                    </Box>
+                <Box sx={{mt: 2, width: 300}}>
+                    <LinearProgress variant="determinate" value={uploadProgress.percent} sx={{height: 6, borderRadius: 3}}/>
+                    <Stack direction="row" justifyContent="space-between" sx={{mt: 0.5}}>
+                        <Typography variant="caption">{uploadProgress.percent}%</Typography>
+                        <Typography variant="caption">{formatBytes(uploadProgress.loaded)} / {formatBytes(uploadProgress.total)}</Typography>
+                    </Stack>
                 </Box>
             )}
 
@@ -195,11 +190,11 @@ export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile
                 onChange={(e) => setNewFileName(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && createNewFile()}
                 size="small"
-                sx={{ display: newFileDialogOpen ? 'block' : 'none' }}
+                sx={{ display: newFileDialogOpen ? 'block' : 'none', mt: 2, width: 300 }}
                 autoFocus
             />
             {newFileDialogOpen && (
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                     <Button variant="contained" size="small" onClick={createNewFile}>{t("files.create")}</Button>
                     <Button size="small" onClick={() => { setNewFileDialogOpen(false); setNewFileName(""); }}>{t("files.cancel")}</Button>
                 </Stack>

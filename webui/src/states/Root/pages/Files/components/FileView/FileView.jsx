@@ -23,7 +23,7 @@ export const FileView = ({files, changeDirectory, click, handleContextMenu, sele
 
     if (files.length === 0) {
         return (
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <Box sx={{ textAlign: 'center', py: 8, bgcolor: 'background.card', borderRadius: 2 }}>
                 <Typography color="text.secondary">{t("files.empty_directory")}</Typography>
             </Box>
         );
@@ -34,10 +34,7 @@ export const FileView = ({files, changeDirectory, click, handleContextMenu, sele
             <Box sx={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
-                gap: 1, 
-                mt: 2,
-                borderRadius: 2,
-                overflow: 'hidden',
+                gap: 1,
             }}>
                 {files.map((file) => (
                     <Box
@@ -48,17 +45,14 @@ export const FileView = ({files, changeDirectory, click, handleContextMenu, sele
                             gap: 1,
                             px: 2,
                             py: 1.5,
-                            bgcolor: isSelected(file.name) ? 'rgba(59, 130, 246, 0.08)' : 'background.card',
+                            bgcolor: isSelected(file.name) ? 'rgba(59, 130, 246, 0.1)' : 'background.card',
                             border: isSelected(file.name) ? '1px solid' : '1px solid transparent',
                             borderColor: 'primary.main',
-                            borderRadius: 1.5,
+                            borderRadius: 1,
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease',
+                            transition: 'all 0.15s ease',
                             '&:hover': {
-                                bgcolor: isSelected(file.name) ? 'rgba(59, 130, 246, 0.12)' : 'action.hover',
-                                '& .file-actions': {
-                                    opacity: 1,
-                                },
+                                bgcolor: isSelected(file.name) ? 'rgba(59, 130, 246, 0.15)' : 'action.hover',
                             },
                         }}
                         onClick={(e) => click(file, e)}
@@ -71,19 +65,18 @@ export const FileView = ({files, changeDirectory, click, handleContextMenu, sele
                                 toggleSelection(file);
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            sx={{ color: 'text.secondary' }}
+                            size="small"
                         />
 
                         {file.is_folder ? (
-                            <Folder sx={{ color: 'warning.main', fontSize: 28 }} />
+                            <Folder sx={{ color: 'warning.main', fontSize: 24 }} />
                         ) : (
-                            <InsertDriveFile sx={{ color: 'text.secondary', fontSize: 28 }} />
+                            <InsertDriveFile sx={{ color: 'text.secondary', fontSize: 24 }} />
                         )}
 
                         <Typography sx={{ 
                             flex: 1, 
                             fontWeight: 500,
-                            color: 'text.primary',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
@@ -91,24 +84,16 @@ export const FileView = ({files, changeDirectory, click, handleContextMenu, sele
                             {file.name}
                         </Typography>
 
-                        <Typography variant="body2" color="text.secondary" sx={{ width: 100, textAlign: 'right' }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ width: 80, textAlign: 'right' }}>
                             {!file.is_folder && convertSize(file.size)}
                         </Typography>
 
-                        <Typography variant="body2" color="text.secondary" sx={{ width: 150, textAlign: 'right' }}>
-                            {new Date(file.last_modified).toLocaleString()}
-                        </Typography>
-
                         <IconButton
-                            className="file-actions"
                             size="small"
                             onClick={(e) => openMenu(e, file)}
-                            sx={{ 
-                                opacity: selectionMode ? 0 : 1,
-                                color: 'text.secondary',
-                            }}
+                            sx={{ color: 'text.secondary' }}
                         >
-                            <MoreVert />
+                            <MoreVert fontSize="small" />
                         </IconButton>
                     </Box>
                 ))}
@@ -119,8 +104,6 @@ export const FileView = ({files, changeDirectory, click, handleContextMenu, sele
                 open={Boolean(anchorEl)}
                 onClose={closeMenu}
                 onClick={(e) => e.stopPropagation()}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <MenuItem onClick={closeMenu}>
                     <ListItemIcon><ContentCopy fontSize="small" /></ListItemIcon>
