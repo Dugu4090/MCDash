@@ -24,11 +24,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class StoreRoute extends DefaultHandler {
 
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(chain -> chain.proceed(chain.request().newBuilder()
+                    .header("User-Agent", "MCDash/1.0")
+                    .build()))
+            .build();
     private final ObjectMapper mapper = new ObjectMapper();
 
     private static final String SPIGET_URL = "https://api.spiget.org/v2/";
     private static final String HANGAR_URL = "https://hangar.papermc.io/api/v1";
+    private static final String HANGAR_CDN_URL = "https://hangarcdn.papermc.io";
 
     private static final String[] POPULAR_PAPER_PLUGINS = {
         "ViaVersion", "ViaBackwards", "ViaRewind", "Velocity", "PaperMC",
@@ -321,7 +326,7 @@ public class StoreRoute extends DefaultHandler {
                     latestVersion = "latest";
                 }
 
-                fileUrl = "https://hangarcdn.papermc.io/plugins/" + owner + "/" + namespace + "/versions/" + latestVersion + "/PAPER/" + pluginName.replace(" ", "") + "-" + latestVersion + ".jar";
+                fileUrl = HANGAR_CDN_URL + "/plugins/" + owner + "/" + namespace + "/versions/" + latestVersion + "/PAPER/" + namespace + "-" + latestVersion + ".jar";
                 break;
 
             case "spiget":
@@ -362,9 +367,16 @@ public class StoreRoute extends DefaultHandler {
         }
 
         try (okhttp3.Response downloadResponse = client.newCall(new okhttp3.Request.Builder().url(fileUrl).build()).execute()) {
-            if (downloadResponse.body() != null) {
-                FileUtils.copyInputStreamToFile(downloadResponse.body().byteStream(), targetFile);
+            int code = downloadResponse.code();
+            if (code != 200) {
+                response.code(code).message("Download failed for " + pluginName + " (HTTP " + code + "). URL: " + fileUrl);
+                return;
             }
+            if (downloadResponse.body() == null) {
+                response.code(500).message("Empty response from " + fileUrl);
+                return;
+            }
+            FileUtils.copyInputStreamToFile(downloadResponse.body().byteStream(), targetFile);
         }
 
         runSync(() -> {

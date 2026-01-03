@@ -14,13 +14,13 @@ export const Plugins = () => {
     const [currentSearch, setCurrentSearch] = useState("");
 
     return (
-        <>
-            <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", mt: 2, mb: 2}}>
+        <Box sx={{width: "100%"}}>
+            <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", mt: 0, mb: 2, width: "100%"}}>
                 <Typography variant="h5" fontWeight={500}>{t("nav.plugins")} <Chip label={plugins.length}
                                                                         color="secondary"/></Typography>
 
-                <Stack direction="row" spacing={1}>
-                    {storeOpen && <TextField label={t("plugins.search")} variant="outlined" size={"small"} sx={{width: {xs: 150, lg: 300}}}
+                <Stack direction="row" spacing={1} sx={{flexShrink: 0}}>
+                    {storeOpen && <TextField label={t("plugins.search")} variant="outlined" size={"small"} sx={{width: {xs: 120, lg: 300}}}
                             value={search} onChange={(e) => setSearch(e.target.value)} color="secondary"
                                              onKeyUp={(e) => e.key === "Enter" && setCurrentSearch(search)}
                     onBlur={() => setCurrentSearch(search)} />}
