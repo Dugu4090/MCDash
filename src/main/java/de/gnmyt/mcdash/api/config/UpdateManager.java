@@ -36,9 +36,9 @@ public class UpdateManager {
         this.currentVersion = instance.getDescription().getVersion();
         this.scheduler = Executors.newScheduledThreadPool(1);
 
-        checkLatestVersion();
+        scheduler.submit(this::checkLatestVersion);
 
-        scheduler.scheduleAtFixedRate(this::checkLatestVersion, 0, 6, TimeUnit.HOURS);
+        scheduler.scheduleAtFixedRate(this::checkLatestVersion, 6, 6, TimeUnit.HOURS);
     }
 
     /**
