@@ -107,6 +107,45 @@ public class FolderRoute extends DefaultHandler {
     }
 
     /**
+     * Renames a folder
+     * @param request The request object from the HttpExchange
+     * @param response The response controller from the HttpExchange
+     */
+    @Override
+    public void patch(Request request, ResponseController response) throws Exception {
+        if (!isStringInBody(request, response, "path")) return;
+        if (!isStringInBody(request, response, "newName")) {
+            response.code(400).message("New name is required");
+            return;
+        }
+
+        String path = getStringFromBody(request, "path");
+        String newName = getStringFromBody(request, "newName");
+
+        if (!isValidExitingFolder(path)) {
+            response.code(404).message("Folder not found");
+            return;
+        }
+
+        if (isRootFolder(path)) {
+            response.code(409).message("You cannot rename the root folder");
+            return;
+        }
+
+        File oldFolder = new File(path);
+        File newFolder = new File(oldFolder.getParent(), newName);
+
+        if (newFolder.exists()) {
+            response.code(409).message("A folder with that name already exists");
+            return;
+        }
+
+        if (oldFolder.renameTo(newFolder))
+            response.message("Folder successfully renamed.");
+        else response.code(500).message("Could not rename folder.");
+    }
+
+    /**
      * Checks if the file path is valid
      * @param path The folder path you want to check
      * @return <code>true</code> if the folder path is valid, otherwise <code>false</code>

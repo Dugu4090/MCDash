@@ -1,13 +1,14 @@
 import {Navigate, Outlet} from "react-router-dom";
 import {TokenContext} from "@contexts/Token";
 import {useContext, useState} from "react";
-import {Box, Toolbar} from "@mui/material";
+import {Box, Toolbar, useMediaQuery, useTheme} from "@mui/material";
 import Sidebar from "@/states/Root/components/Sidebar";
 import Header from "@/states/Root/components/Header";
 import ServerDown from "@/states/Root/pages/ServerDown";
 
 export const Root = () => {
-
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [mobileOpen, setMobileOpen] = useState(false);
     const {tokenValid, serverOnline} = useContext(TokenContext);
 
@@ -17,10 +18,19 @@ export const Root = () => {
 
             {tokenValid === null && serverOnline === false && <ServerDown />}
 
-            {tokenValid && <Box sx={{ display: 'flex', overflow: 'hidden'}}>
+            {tokenValid && <Box sx={{ display: 'flex', overflow: 'hidden', minHeight: '100vh' }}>
                 <Header mobileOpen={mobileOpen} toggleOpen={() => setMobileOpen(current => !current)} />
-                <Sidebar mobileOpen={mobileOpen} toggleOpen={() => setMobileOpen(current => !current)} />
-                <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { sm: "240px"} }}>
+                <Sidebar mobileOpen={mobileOpen} toggleOpen={() => setMobileOpen(current => !current)} isMobile={isMobile} />
+                <Box component="main" sx={{ 
+                    flexGrow: 1, 
+                    p: 3, 
+                    ml: isMobile ? 0 : "240px",
+                    transition: theme.transitions.create(['margin'], {
+                        easing: theme.transitions.easing.sharp,
+                        duration: theme.transitions.duration.leavingScreen,
+                    }),
+                    width: { sm: isMobile ? '100%' : `calc(100% - 240px)` }
+                }}>
                     <Toolbar />
                     <Outlet />
                 </Box>

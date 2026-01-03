@@ -117,6 +117,12 @@
     "folder_created": "Folder successfully created",
     "download": "Download",
     "delete": "Delete",
+    "rename": "Rename",
+    "new_name": "New name",
+    "renamed": "Successfully renamed",
+    "rename_failed": "Failed to rename",
+    "cancel": "Cancel",
+    "upload_failed": "Upload failed",
     "go_back": "Go back",
     "create_folder": {
       "title": "Create new folder",

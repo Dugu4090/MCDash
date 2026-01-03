@@ -60,13 +60,37 @@ export const downloadRequest = async (path, body = {}, headers = {}) => {
     element.remove();
 }
 
-// Upload a file to the server
-export const uploadRequest = async (path, file, headers = {}) => {
-    let formData = new FormData();
-    formData.append("file", file, file.name);
+// Upload a file to the server with optional progress callback
+export const uploadRequest = async (path, file, onProgress = null, headers = {}) => {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/api/" + path, true);
 
-    return await fetch("/api/" + path, {
-        headers: {...getHeaders(true), ...headers}, method: "PUT",
-        body: formData
+        const token = localStorage.getItem("token");
+        if (token) {
+            xhr.setRequestHeader("Authorization", "Basic " + token);
+        }
+
+        if (onProgress) {
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    onProgress(event.loaded, event.total);
+                }
+            };
+        }
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve({status: xhr.status, ok: true});
+            } else {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error("Upload failed"));
+
+        let formData = new FormData();
+        formData.append("file", file, file.name);
+        xhr.send(formData);
     });
 }

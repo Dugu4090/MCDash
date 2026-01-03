@@ -1,9 +1,12 @@
 import {Menu, MenuItem} from "@mui/material";
-import {Delete, Download} from "@mui/icons-material";
+import {Delete, Download, Edit} from "@mui/icons-material";
 import {deleteRequest, downloadRequest} from "@/common/utils/RequestUtil.js";
 import {t} from "i18next";
+import {useState} from "react";
+import RenameDialog from "./components/RenameDialog";
 
 export const FileDropdown = ({contextMenu, setContextMenu, directory, setFiles, setSnackbar}) => {
+    const [renameOpen, setRenameOpen] = useState(false);
 
     const handleClose = () => {
         setContextMenu(null);
@@ -41,18 +44,33 @@ export const FileDropdown = ({contextMenu, setContextMenu, directory, setFiles, 
         handleClose();
     }
 
+    const openRename = () => {
+        if (!contextMenu.file) return;
+        setRenameOpen(true);
+        handleClose();
+    }
+
     return (
-        <Menu open={contextMenu !== null} onClose={handleClose} anchorReference="anchorPosition"
-              anchorPosition={contextMenu !== null
-                  ? {top: contextMenu.mouseY, left: contextMenu.mouseX} : undefined}>
-            {!contextMenu?.file?.is_folder && <MenuItem onClick={downloadFile}>
-                <Download/>
-                {t("files.download")}
-            </MenuItem>}
-            <MenuItem onClick={handleDelete}>
-                <Delete/>
-                {t("files.delete")}
-            </MenuItem>
-        </Menu>
+        <>
+            <RenameDialog open={renameOpen} setOpen={setRenameOpen} file={contextMenu?.file} 
+                          directory={directory} setFiles={setFiles} setSnackbar={setSnackbar}/>
+
+            <Menu open={contextMenu !== null} onClose={handleClose} anchorReference="anchorPosition"
+                  anchorPosition={contextMenu !== null
+                      ? {top: contextMenu.mouseY, left: contextMenu.mouseX} : undefined}>
+                {!contextMenu?.file?.is_folder && <MenuItem onClick={downloadFile}>
+                    <Download/>
+                    {t("files.download")}
+                </MenuItem>}
+                <MenuItem onClick={openRename}>
+                    <Edit/>
+                    {t("files.rename")}
+                </MenuItem>
+                <MenuItem onClick={handleDelete}>
+                    <Delete/>
+                    {t("files.delete")}
+                </MenuItem>
+            </Menu>
+        </>
     );
 }

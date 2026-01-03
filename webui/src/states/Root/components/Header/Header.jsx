@@ -1,4 +1,4 @@
-import {AppBar, Avatar, IconButton, Stack, Toolbar, Tooltip, Typography} from "@mui/material";
+import {AppBar, Avatar, IconButton, Stack, Toolbar, Tooltip, Typography, useTheme} from "@mui/material";
 import {BrowserUpdated, Menu as MenuIcon} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import {sidebar} from "@/common/routes/server.jsx";
@@ -10,7 +10,8 @@ import {jsonRequest} from "@/common/utils/RequestUtil.js";
 
 const drawerWidth = 240;
 
-export const Header = ({toggleOpen}) => {
+export const Header = ({mobileOpen, toggleOpen}) => {
+    const theme = useTheme();
     const location = useLocation();
 
     const retrieveUsername = () => atob(localStorage.getItem("token")).split(":")[0];
@@ -35,19 +36,31 @@ export const Header = ({toggleOpen}) => {
 
 
     return (
-        <AppBar position="fixed" sx={{width: {sm: `calc(100% - ${drawerWidth}px)`}, ml: {sm: `${drawerWidth}px`}}}>
+        <AppBar position="fixed" sx={{ 
+            width: { sm: `calc(100% - ${drawerWidth}px)` }, 
+            ml: { sm: `${drawerWidth}px` },
+            backgroundColor: 'background.paper',
+            color: 'text.primary',
+            boxShadow: 'none',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            transition: theme.transitions.create(['width', 'margin'], {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+            }),
+        }}>
             <AccountMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>
             <UpdateDialog open={updateDialogOpen} setOpen={setUpdateDialogOpen} setVersionInfo={setVersionInfo}
                             latest={versionInfo.latest} current={versionInfo.current}/>
 
             <Toolbar>
                 <IconButton aria-label="open drawer" edge="start" onClick={toggleOpen}
-                            sx={{mr: 2}}>
-                    <MenuIcon/>
+                            sx={{ mr: 2 }}>
+                    <MenuIcon />
                 </IconButton>
                 <Typography variant="h6" noWrap>{getTitleByPath()}</Typography>
 
-                <Stack sx={{ml: "auto"}} direction="row">
+                <Stack sx={{ ml: "auto" }} direction="row">
                     {versionInfo.available && <Tooltip title={t("update.available")}>
                         <IconButton color="warning" onClick={() => setUpdateDialogOpen(true)}>
                             <BrowserUpdated/>
@@ -55,7 +68,7 @@ export const Header = ({toggleOpen}) => {
                     </Tooltip>}
                     <IconButton id="menu" onClick={() => setMenuOpen(true)}>
                         <Avatar src={"https://mc-heads.net/avatar/" + retrieveUsername()} alt={retrieveUsername()}
-                                sx={{width: 24, height: 24}}/>
+                                sx={{ width: 32, height: 32 }}/>
                     </IconButton>
                 </Stack>
             </Toolbar>

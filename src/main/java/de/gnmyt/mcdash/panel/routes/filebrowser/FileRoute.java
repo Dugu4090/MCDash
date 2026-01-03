@@ -41,7 +41,7 @@ public class FileRoute extends MultipartHandler {
     }
 
     /**
-     * Updates the content of a file in a directory
+     * Renames or updates a file
      * @param request The request object from the HttpExchange
      * @param response The response controller from the HttpExchange
      */
@@ -50,19 +50,40 @@ public class FileRoute extends MultipartHandler {
         if (!isStringInBody(request, response, "path")) return;
 
         String path = getStringFromBody(request, "path");
-        String fileContent = getStringFromBody(request, "content") != null ? getStringFromBody(request, "content") : "\n";
+        String newName = getStringFromBody(request, "newName");
 
-        if (!isValidFilePath(path)) {
-            response.code(404).message("Could not create file.");
-            return;
+        if (newName != null) {
+            if (!isValidExitingFile(path)) {
+                response.code(404).message("File not found");
+                return;
+            }
+
+            File oldFile = new File(path);
+            File newFile = new File(oldFile.getParent(), newName);
+
+            if (newFile.exists()) {
+                response.code(409).message("A file with that name already exists");
+                return;
+            }
+
+            if (oldFile.renameTo(newFile))
+                response.message("File successfully renamed.");
+            else response.code(500).message("Could not rename file.");
+        } else {
+            String fileContent = getStringFromBody(request, "content") != null ? getStringFromBody(request, "content") : "\n";
+
+            if (!isValidFilePath(path)) {
+                response.code(404).message("Could not create file.");
+                return;
+            }
+
+            File file = new File(path);
+            boolean exists = file.exists();
+
+            FileUtils.writeStringToFile(new File(path), fileContent, StandardCharsets.UTF_8);
+
+            response.message("File successfully " + (exists ? "updated" : "created") + ".");
         }
-
-        File file = new File(path);
-        boolean exists = file.exists();
-
-        FileUtils.writeStringToFile(new File(path), fileContent, StandardCharsets.UTF_8);
-
-        response.message("File successfully " + (exists ? "updated" : "created") + ".");
     }
 
     /**
