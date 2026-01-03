@@ -33,13 +33,19 @@ export const StoreItem = ({id, name, description, icon, downloads, source, close
         return "https://www.spigotmc.org/resources/" + id.replace("spiget_", "");
     }
 
+    const getSourceName = () => {
+        if (source === "hangar") return "Hangar (Paper)";
+        if (source === "spiget") return "SpigotMC";
+        return source || "SpigotMC";
+    }
+
     return (
         <Box backgroundColor="background.darker" borderRadius={2} padding={2} sx={{mr: 1, mt: 1, width: {xs: "100%", lg: 300}}}>
             <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
                 <Box>
                     <Typography variant="h6" fontWeight={500}>{name}</Typography>
                     <Typography variant="caption" color="text.secondary" sx={{textTransform: "uppercase"}}>
-                        {source || "spiget"}
+                        {getSourceName()}
                     </Typography>
                 </Box>
 

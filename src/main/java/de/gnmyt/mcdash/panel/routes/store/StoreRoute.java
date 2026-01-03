@@ -128,13 +128,9 @@ public class StoreRoute extends DefaultHandler {
     private List<PluginInfo> fetchHangarPlugins(String query, int page) throws Exception {
         List<PluginInfo> plugins = new ArrayList<>();
 
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(HANGAR_URL + "/projects/search").newBuilder()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(HANGAR_URL + "/projects").newBuilder()
                 .addQueryParameter("limit", "50")
                 .addQueryParameter("offset", String.valueOf((page - 1) * 50));
-
-        if (!query.isEmpty()) {
-            urlBuilder.addQueryParameter("q", query);
-        }
 
         HttpUrl url = urlBuilder.build();
 

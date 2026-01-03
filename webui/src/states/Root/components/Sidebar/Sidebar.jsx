@@ -1,4 +1,4 @@
-import {Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Toolbar, Typography} from "@mui/material";
+import {Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Typography} from "@mui/material";
 import {sidebar} from "@/common/routes/server.jsx";
 import {useLocation, useNavigate} from "react-router-dom";
 
@@ -22,12 +22,12 @@ export const Sidebar = ({isMobile, open, onClose}) => {
 
     const drawerContent = (
         <>
-            <Toolbar sx={{ 
+            <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 py: 2,
-                minHeight: '64px',
+                minHeight: isMobile ? '64px' : 'auto',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
             }}>
@@ -35,7 +35,7 @@ export const Sidebar = ({isMobile, open, onClose}) => {
                     <img src="/assets/img/favicon.png" alt="MCDash" width="36px" height="36px" style={{ borderRadius: 6 }} />
                     <Typography variant="h6" fontWeight={700}>MCDash</Typography>
                 </Stack>
-            </Toolbar>
+            </Box>
 
             <List sx={{ px: 1, py: 2 }}>
                 {sidebar.map((route) => (

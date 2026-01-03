@@ -28,7 +28,8 @@ export const Root = () => {
                     p: 3,
                     ml: isMobile ? 0 : "240px",
                     width: isMobile ? '100%' : 'calc(100% - 240px)',
-                    mt: 8,
+                    mt: 0,
+                    minHeight: 'calc(100vh - 64px)',
                     transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out',
                 }}>
                     <Outlet />
