@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.gnmyt.mcdash.MinecraftDashboard;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.OkHttpClient.Builder;
 import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
@@ -19,7 +20,11 @@ public class UpdateManager {
 
     private final ScheduledExecutorService scheduler;
 
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new Builder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(5, TimeUnit.SECONDS)
+            .writeTimeout(5, TimeUnit.SECONDS)
+            .build();
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final MinecraftDashboard instance;

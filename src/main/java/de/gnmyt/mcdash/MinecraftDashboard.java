@@ -19,7 +19,6 @@ public class MinecraftDashboard extends JavaPlugin {
 
     private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
     private static ConfigurationManager config;
-    private static Metrics metrics;
     private static BackupController backupController;
     private static UpdateManager updateManager;
     private static AccountManager accountManager;
@@ -33,6 +32,15 @@ public class MinecraftDashboard extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        executor.submit(() -> initializePlugin());
+    }
+
+    private void initializePlugin() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {}
+
         updateManager = new UpdateManager(instance);
         accountManager = new AccountManager(instance);
         backupManager = new BackupManager(instance);
@@ -42,7 +50,6 @@ public class MinecraftDashboard extends JavaPlugin {
         backupController = new BackupController();
         scheduleManager = new ScheduleManager(instance);
         if (!config.configExists()) config.generateDefault();
-        metrics = new Metrics(this, 18915);
 
         try {
             server = HttpServer.create(new InetSocketAddress(config.getPort()), 0);
