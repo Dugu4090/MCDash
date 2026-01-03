@@ -1,22 +1,10 @@
-import {
-    Divider, Drawer,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Stack,
-    Toolbar,
-    Typography,
-    useTheme
-} from "@mui/material";
+import {Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Toolbar, Typography} from "@mui/material";
 import {sidebar} from "@/common/routes/server.jsx";
 import {useLocation, useNavigate} from "react-router-dom";
 
 const drawerWidth = 240;
 
 export const Sidebar = ({open, onClose, isMobile}) => {
-    const theme = useTheme();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -36,11 +24,12 @@ export const Sidebar = ({open, onClose, isMobile}) => {
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                py: 2
+                py: 2,
+                minHeight: '64px',
             }}>
                 <Stack direction="row" alignItems="center" gap={1.5}>
                     <img src="/assets/img/favicon.png" alt="MCDash" width="40px" height="40px" style={{ borderRadius: 8 }} />
-                    <Typography variant="h6" noWrap fontWeight={700}>MCDash</Typography>
+                    <Typography variant="h6" fontWeight={700}>MCDash</Typography>
                 </Stack>
             </Toolbar>
 
@@ -53,30 +42,20 @@ export const Sidebar = ({open, onClose, isMobile}) => {
                             selected={isSelected(route.path)}
                             onClick={() => handleNavigate(route.path)}
                             sx={{
-                                borderRadius: 2,
-                                transition: theme.transitions.create(['background-color', 'transform'], {
-                                    easing: theme.transitions.easing.easeInOut,
-                                    duration: 200,
-                                }),
+                                borderRadius: 1.5,
                                 '&:hover': {
-                                    transform: 'translateX(4px)',
+                                    bgcolor: 'action.hover',
                                 },
                                 '&.Mui-selected': {
-                                    backgroundColor: 'primary.main',
+                                    bgcolor: 'primary.main',
+                                    color: 'white',
                                     '&:hover': {
-                                        backgroundColor: 'primary.dark',
-                                    },
-                                    '& .MuiListItemIcon-root': {
-                                        color: 'white',
-                                    },
-                                    '& .MuiListItemText-primary': {
-                                        color: 'white',
-                                        fontWeight: 600,
+                                        bgcolor: 'primary.dark',
                                     },
                                 },
                             }}
                         >
-                            <ListItemIcon sx={{ minWidth: 40 }}>{route.icon}</ListItemIcon>
+                            <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>{route.icon}</ListItemIcon>
                             <ListItemText primary={route.name()} />
                         </ListItemButton>
                     </ListItem>
@@ -100,10 +79,6 @@ export const Sidebar = ({open, onClose, isMobile}) => {
                     borderRight: '1px solid',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
-                    transition: theme.transitions.create(['transform', 'width'], {
-                        easing: theme.transitions.easing.easeOut,
-                        duration: 300,
-                    }),
                 },
             }}
         >

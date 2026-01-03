@@ -28,10 +28,6 @@ export const Root = () => {
                     p: 3,
                     ml: sidebarOpen && !isMobile ? "240px" : 0,
                     width: '100%',
-                    transition: theme.transitions.create(['margin'], {
-                        easing: theme.transitions.easing.sharp,
-                        duration: 300,
-                    }),
                     mt: 8,
                 }}>
                     <Outlet />

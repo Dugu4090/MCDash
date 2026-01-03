@@ -1,4 +1,4 @@
-import {AppBar, Avatar, IconButton, Stack, Toolbar, Typography, useTheme} from "@mui/material";
+import {AppBar, Avatar, IconButton, Stack, Toolbar, Typography} from "@mui/material";
 import {Menu as MenuIcon} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import {sidebar} from "@/common/routes/server.jsx";
@@ -7,7 +7,6 @@ import AccountMenu from "@/states/Root/components/Header/components/AccountMenu"
 import {t} from "i18next";
 
 export const Header = ({sidebarOpen, toggleSidebar, isMobile}) => {
-    const theme = useTheme();
     const location = useLocation();
 
     const retrieveUsername = () => atob(localStorage.getItem("token")).split(":")[0];
@@ -32,7 +31,7 @@ export const Header = ({sidebarOpen, toggleSidebar, isMobile}) => {
             boxShadow: 'none',
             borderBottom: '1px solid',
             borderColor: 'divider',
-            zIndex: theme.zIndex.drawer + 1,
+            zIndex: 1200,
         }}>
             <AccountMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>
 
@@ -41,7 +40,7 @@ export const Header = ({sidebarOpen, toggleSidebar, isMobile}) => {
                             sx={{ mr: 2 }}>
                     <MenuIcon />
                 </IconButton>
-                <Typography variant="h6" noWrap>{getTitleByPath()}</Typography>
+                <Typography variant="h6">{getTitleByPath()}</Typography>
 
                 <Stack sx={{ ml: "auto" }} direction="row">
                     <IconButton id="menu" onClick={() => setMenuOpen(true)}>
