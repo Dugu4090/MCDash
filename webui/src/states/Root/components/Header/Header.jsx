@@ -42,7 +42,7 @@ export const Header = ({toggleOpen}) => {
 
             <Toolbar>
                 <IconButton aria-label="open drawer" edge="start" onClick={toggleOpen}
-                            sx={{mr: 2, display: {sm: 'none'}}}>
+                            sx={{mr: 2}}>
                     <MenuIcon/>
                 </IconButton>
                 <Typography variant="h6" noWrap>{getTitleByPath()}</Typography>

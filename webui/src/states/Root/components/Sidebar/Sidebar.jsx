@@ -52,16 +52,10 @@ export const Sidebar = ({mobileOpen, toggleOpen, window: containerWindow}) => {
     );
 
     return (
-        <>
-            <Drawer container={container} variant="temporary" open={mobileOpen} onClose={toggleOpen}
-                ModalProps={{keepMounted: true}} sx={{display: { xs: 'block', sm: 'none' },
+        <Drawer container={container} variant="temporary" open={mobileOpen} onClose={toggleOpen}
+            ModalProps={{keepMounted: true}} sx={{
                     '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }}}>
-                {drawer}
-            </Drawer>
-            <Drawer variant="permanent" sx={{display: { xs: 'none', sm: 'block' },
-                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }}} open>
-                {drawer}
-            </Drawer>
-        </>
+            {drawer}
+        </Drawer>
     )
 }

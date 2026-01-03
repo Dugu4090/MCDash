@@ -4,33 +4,33 @@ const theme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#556cd6',
+            main: '#3b82f6',
         },
         background: {
-            default: '#27232F',
-            darker: "#1A1722",
-            card: '#2b2937',
+            default: '#0f172a',
+            darker: "#020617",
+            card: '#1e293b',
         }
     },
     components: {
         MuiDrawer: {
             styleOverrides: {
                 paper: {
-                    backgroundColor: '#1A1722'
+                    backgroundColor: '#1e293b'
                 }
             }
         },
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#1A1722'
+                    backgroundColor: '#1e293b'
                 }
             }
         },
         MuiMenu: {
             styleOverrides: {
                 paper: {
-                    backgroundColor: '#1A1722'
+                    backgroundColor: '#1e293b'
                 }
             }
         },
@@ -53,10 +53,10 @@ const theme = createTheme({
                     "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
                         borderRadius: 8,
                         minHeight: 24,
-                        backgroundColor: "#34333e",
+                        backgroundColor: "#334155",
                     },
                     "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
-                        backgroundColor: "#3B3A4A"
+                        backgroundColor: "#475569"
                     }
                 },
             },
