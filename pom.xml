@@ -64,12 +64,64 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>okhttp3</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.okhttp3</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>okio</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.okio</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.jackson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.commons</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.reflections</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.reflections</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.sshd</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.sshd</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.mindrot</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.jbcrypt</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.md_5.bungeecordchat</pattern>
+                                    <shadedPattern>de.gnmyt.mcdash.libs.bungeecordchat</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -80,8 +132,8 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>md-5-repo</id>
-            <url>https://repo.md-5.net/content/repositories/snapshots/</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
 
@@ -108,7 +160,7 @@
             <version>0.10.2</version>
         </dependency>
 
-        <!-- Spigot API -->
+        <!-- Spigot API (1.8.8 - compatible with Paper 1.21.x via Paper's Bukkit shim) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -119,21 +171,18 @@
                     <groupId>net.md-5</groupId>
                     <artifactId>bungeecord-chat</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
-        <!-- Bungee Chat API -->
+        <!-- Paper API -->
         <dependency>
-            <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-chat</artifactId>
-            <version>1.21-R0.4</version>
-        </dependency>
-
-        <!-- Bukkit API -->
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -157,6 +206,13 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.12.0</version>
+        </dependency>
+
+        <!-- Okio (required by okhttp) -->
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>3.9.0</version>
         </dependency>
 
         <!-- BCrypt API -->
