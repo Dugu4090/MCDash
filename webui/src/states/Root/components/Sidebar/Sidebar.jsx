@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import {sidebar} from "@/common/routes/server.jsx";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useEffect} from "react";
 
 const drawerWidth = 240;
 
@@ -85,45 +84,23 @@ export const Sidebar = ({mobileOpen, toggleOpen, isMobile}) => {
     );
 
     return (
-        <>
-            <Drawer
-                variant="temporary"
-                open={mobileOpen}
-                onClose={toggleOpen}
-                ModalProps={{ keepMounted: true }}
-                sx={{
-                    display: { xs: 'block', sm: 'none' },
-                    '& .MuiDrawer-paper': { 
-                        boxSizing: 'border-box', 
-                        width: drawerWidth,
-                        transition: theme.transitions.create('transform', {
-                            easing: theme.transitions.easing.easeOut,
-                            duration: 300,
-                        }),
-                    },
-                }}
-            >
-                {drawerContent}
-            </Drawer>
-            <Drawer
-                variant="permanent"
-                sx={{
-                    display: { xs: 'none', sm: 'block' },
-                    '& .MuiDrawer-paper': { 
-                        boxSizing: 'border-box', 
-                        width: drawerWidth,
-                        borderRight: '1px solid',
-                        borderColor: 'divider',
-                        transition: theme.transitions.create('width', {
-                            easing: theme.transitions.easing.easeOut,
-                            duration: 300,
-                        }),
-                    },
-                }}
-                open
-            >
-                {drawerContent}
-            </Drawer>
-        </>
+        <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={toggleOpen}
+            ModalProps={{ keepMounted: true }}
+            sx={{
+                '& .MuiDrawer-paper': { 
+                    boxSizing: 'border-box', 
+                    width: drawerWidth,
+                    transition: theme.transitions.create('transform', {
+                        easing: theme.transitions.easing.easeOut,
+                        duration: 300,
+                    }),
+                },
+            }}
+        >
+            {drawerContent}
+        </Drawer>
     );
 }

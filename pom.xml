@@ -236,6 +236,13 @@
             <version>2.14.0</version>
         </dependency>
 
+        <!-- Commons Compress (for archive support) -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.25.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -8,7 +8,7 @@ import ServerDown from "@/states/Root/pages/ServerDown";
 
 export const Root = () => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const [mobileOpen, setMobileOpen] = useState(false);
     const {tokenValid, serverOnline} = useContext(TokenContext);
 
@@ -25,11 +25,11 @@ export const Root = () => {
                     flexGrow: 1, 
                     p: 3, 
                     ml: isMobile ? 0 : "240px",
-                    transition: theme.transitions.create(['margin'], {
-                        easing: theme.transitions.easing.sharp,
-                        duration: theme.transitions.duration.leavingScreen,
+                    width: isMobile ? '100%' : `calc(100% - 240px)`,
+                    transition: theme.transitions.create(['margin', 'width'], {
+                        easing: theme.transitions.easing.easeOut,
+                        duration: 300,
                     }),
-                    width: { sm: isMobile ? '100%' : `calc(100% - 240px)` }
                 }}>
                     <Toolbar />
                     <Outlet />
