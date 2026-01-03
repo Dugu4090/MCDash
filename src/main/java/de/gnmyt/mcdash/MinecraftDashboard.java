@@ -32,7 +32,7 @@ public class MinecraftDashboard extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        initializePlugin();
+        executor.submit(() -> initializePlugin());
     }
 
     private void initializePlugin() {
