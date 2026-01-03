@@ -32,15 +32,10 @@ public class MinecraftDashboard extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
-        executor.submit(() -> initializePlugin());
+        initializePlugin();
     }
 
     private void initializePlugin() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {}
-
         updateManager = new UpdateManager(instance);
         accountManager = new AccountManager(instance);
         backupManager = new BackupManager(instance);
