@@ -8,7 +8,7 @@ import {t} from "i18next";
 
 const drawerWidth = 240;
 
-export const Header = ({mobileOpen, toggleOpen}) => {
+export const Header = ({sidebarOpen, toggleSidebar}) => {
     const theme = useTheme();
     const location = useLocation();
 
@@ -26,11 +26,10 @@ export const Header = ({mobileOpen, toggleOpen}) => {
         return t("nav.overview");
     }
 
-
     return (
         <AppBar position="fixed" sx={{ 
-            width: { sm: `calc(100% - ${drawerWidth}px)` }, 
-            ml: { sm: `${drawerWidth}px` },
+            width: { md: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%' },
+            ml: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
             backgroundColor: 'background.paper',
             color: 'text.primary',
             boxShadow: 'none',
@@ -40,11 +39,12 @@ export const Header = ({mobileOpen, toggleOpen}) => {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
             }),
+            zIndex: theme.zIndex.drawer + 1,
         }}>
             <AccountMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>
 
             <Toolbar>
-                <IconButton aria-label="open drawer" edge="start" onClick={toggleOpen}
+                <IconButton aria-label="toggle sidebar" edge="start" onClick={toggleSidebar}
                             sx={{ mr: 2 }}>
                     <MenuIcon />
                 </IconButton>

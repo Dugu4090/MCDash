@@ -5,11 +5,12 @@ import {t} from "i18next";
 import {useState} from "react";
 import RenameDialog from "./components/RenameDialog";
 
-export const FileDropdown = ({contextMenu, setContextMenu, directory, setFiles, setSnackbar}) => {
+export const FileDropdown = ({contextMenu, setContextMenu, directory, setFiles, setSnackbar, closeMenu}) => {
     const [renameOpen, setRenameOpen] = useState(false);
 
     const handleClose = () => {
         setContextMenu(null);
+        if (closeMenu) closeMenu();
     }
 
     const deleteFile = (file) => {

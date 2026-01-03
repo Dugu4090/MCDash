@@ -1,5 +1,5 @@
-import {Box, Chip, FormControlLabel, IconButton, LinearProgress, Stack, Switch, Tooltip, Typography} from "@mui/material";
-import {Close, CreateNewFolder, UploadFile, Archive, Unarchive, Delete, Download, CheckBox} from "@mui/icons-material";
+import {Box, Button, Chip, FormControlLabel, IconButton, LinearProgress, Stack, Switch, TextField, Tooltip, Typography} from "@mui/material";
+import {Close, CreateNewFolder, UploadFile, Archive, Unarchive, Delete, Download, CheckBox, NoteAdd, ArrowBack} from "@mui/icons-material";
 import NewFolderDialog from "@/states/Root/pages/Files/components/FileHeader/components/NewFolderDialog";
 import React, {useState} from "react";
 import {uploadRequest} from "@/common/utils/RequestUtil.js";
@@ -7,8 +7,10 @@ import {t} from "i18next";
 
 export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile, updateFiles, setSnackbar,
                            selectedCount, selectionMode, setSelectionMode, onSelectAll, onArchive, onUnarchive,
-                           onDelete, onDownload, allSelected}) => {
-    const [dialogOpen, setDialogOpen] = useState(false);
+                           onDelete, onDownload, allSelected, clearSelection}) => {
+    const [folderDialogOpen, setFolderDialogOpen] = useState(false);
+    const [newFileDialogOpen, setNewFileDialogOpen] = useState(false);
+    const [newFileName, setNewFileName] = useState("");
 
     const [uploadProgress, setUploadProgress] = useState({active: false, loaded: 0, total: 0, percent: 0});
 
@@ -58,25 +60,70 @@ export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile
         input.click();
     }
 
+    const createNewFile = () => {
+        if (!newFileName.trim()) return;
+        
+        const fileContent = "";
+        const formData = new URLSearchParams();
+        formData.append("path", "." + directory + newFileName);
+        formData.append("content", fileContent);
+
+        fetch("/api/filebrowser/file", {
+            method: "PATCH",
+            headers: { "Authorization": "Basic " + localStorage.getItem("token") },
+            body: formData
+        }).then(() => {
+            setSnackbar(t("files.file_created"));
+            setNewFileName("");
+            setNewFileDialogOpen(false);
+            updateFiles();
+        }).catch(() => {
+            setSnackbar(t("files.create_failed"));
+        });
+    };
+
+    const goBack = () => {
+        if (directory === "/") return;
+        const newDir = directory.substring(0, directory.length - 1).split("/").slice(0, -1).join("/") + "/";
+        setDirectory(newDir);
+    };
+
     return (
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", mt: 2, mb: 2, flexWrap: "wrap", gap: 2}}>
-            <NewFolderDialog open={dialogOpen} setOpen={setDialogOpen} updateFiles={updateFiles}
+            <NewFolderDialog open={folderDialogOpen} setOpen={setFolderDialogOpen} updateFiles={updateFiles}
                              directory={directory} setSnackbar={setSnackbar}/>
-            <Typography variant="h5" fontWeight={500} sx={{display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1}}>
-                {t("nav.files")}
-                {currentFile === null && directory.split("/").splice(0, directory.split("/").length - 1).map((dir, index) => (
-                    <Chip key={index} label={dir || "/"} color="secondary" 
-                          onClick={() => setDirectory(directory.substring(0, directory.indexOf(dir) + dir.length + 1))}/>
-                ))}
-            </Typography>
+            
+            {currentFile !== null ? (
+                <Stack direction="row" alignItems="center" spacing={2}>
+                    <IconButton onClick={() => setCurrentFile(null)}>
+                        <Close />
+                    </IconButton>
+                    <Typography variant="h5" fontWeight={500}>
+                        {currentFile.name}
+                    </Typography>
+                </Stack>
+            ) : (
+                <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                    <Tooltip title={t("files.go_back")}>
+                        <IconButton onClick={goBack} disabled={directory === "/"}>
+                            <ArrowBack />
+                        </IconButton>
+                    </Tooltip>
+                    <Typography variant="h5" fontWeight={500}>{t("nav.files")}</Typography>
+                    {directory.split("/").filter(d => d).map((dir, index) => (
+                        <Chip key={index} label={dir} size="small" 
+                              onClick={() => setDirectory("/" + directory.split("/").slice(1, directory.split("/").indexOf(dir) + 2).join("/") + "/")}
+                        />
+                    ))}
+                </Stack>
+            )}
 
-            {selectionMode ? (
+            {selectionMode && currentFile === null && (
                 <Stack direction="row" alignItems="center" gap={1}>
                     <FormControlLabel 
                         control={<CheckBox checked={allSelected} onChange={onSelectAll} />}
-                        label={t("files.select_all")}
+                        label={`${selectedCount} ${t("files.selected")}`}
                     />
-                    <Typography>{selectedCount} {t("files.selected")}</Typography>
                     <Tooltip title={t("files.archive")}>
                         <IconButton color="warning" onClick={onArchive} disabled={selectedCount === 0}>
                             <Archive/>
@@ -97,27 +144,34 @@ export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile
                             <Delete/>
                         </IconButton>
                     </Tooltip>
-                    <IconButton onClick={() => { setSelectionMode(false); }}>
+                    <IconButton onClick={clearSelection}>
                         <Close/>
                     </IconButton>
                 </Stack>
-            ) : (
+            )}
+
+            {!selectionMode && currentFile === null && (
                 <Stack direction="row" spacing={1} alignItems="center">
+                    <Tooltip title={t("files.upload_file")}>
+                        <IconButton color="primary" onClick={upload}>
+                            <UploadFile/>
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t("files.create_folder.title")}>
+                        <IconButton color="primary" onClick={() => setFolderDialogOpen(true)}>
+                            <CreateNewFolder/>
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t("files.new_file")}>
+                        <IconButton color="primary" onClick={() => setNewFileDialogOpen(true)}>
+                            <NoteAdd/>
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title={t("files.selection_mode")}>
                         <FormControlLabel 
                             control={<Switch checked={selectionMode} onChange={() => setSelectionMode(!selectionMode)} />}
                             label=""
                         />
-                    </Tooltip>
-                    <Tooltip title={t("files.upload_file")}>
-                        <IconButton color="secondary" onClick={upload}>
-                            <UploadFile/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("files.create_folder.title")}>
-                        <IconButton color="secondary" onClick={() => setDialogOpen(true)}>
-                            <CreateNewFolder/>
-                        </IconButton>
                     </Tooltip>
                 </Stack>
             )}
@@ -134,8 +188,22 @@ export const FileHeader = ({currentFile, directory, setDirectory, setCurrentFile
                 </Box>
             )}
 
-            {currentFile !== null &&
-                <IconButton color="secondary" onClick={() => setCurrentFile(null)}><Close/></IconButton>}
+            <TextField
+                open={newFileDialogOpen}
+                label={t("files.new_file")}
+                value={newFileName}
+                onChange={(e) => setNewFileName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && createNewFile()}
+                size="small"
+                sx={{ display: newFileDialogOpen ? 'block' : 'none' }}
+                autoFocus
+            />
+            {newFileDialogOpen && (
+                <Stack direction="row" spacing={1}>
+                    <Button variant="contained" size="small" onClick={createNewFile}>{t("files.create")}</Button>
+                    <Button size="small" onClick={() => { setNewFileDialogOpen(false); setNewFileName(""); }}>{t("files.cancel")}</Button>
+                </Stack>
+            )}
         </Box>
     );
 }

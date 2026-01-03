@@ -9,8 +9,10 @@ import ServerDown from "@/states/Root/pages/ServerDown";
 export const Root = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
     const {tokenValid, serverOnline} = useContext(TokenContext);
+
+    const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
     return (
         <>
@@ -18,20 +20,21 @@ export const Root = () => {
 
             {tokenValid === null && serverOnline === false && <ServerDown />}
 
-            {tokenValid && <Box sx={{ display: 'flex', overflow: 'hidden', minHeight: '100vh' }}>
-                <Header mobileOpen={mobileOpen} toggleOpen={() => setMobileOpen(current => !current)} />
-                <Sidebar mobileOpen={mobileOpen} toggleOpen={() => setMobileOpen(current => !current)} isMobile={isMobile} />
+            {tokenValid && <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+                <Header sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+                <Sidebar open={sidebarOpen} onClose={toggleSidebar} isMobile={isMobile} />
                 <Box component="main" sx={{ 
                     flexGrow: 1, 
-                    p: 3, 
-                    ml: isMobile ? 0 : "240px",
-                    width: isMobile ? '100%' : `calc(100% - 240px)`,
+                    p: 3,
+                    ml: sidebarOpen && !isMobile ? "240px" : 0,
+                    width: sidebarOpen && !isMobile ? `calc(100% - 240px)` : '100%',
                     transition: theme.transitions.create(['margin', 'width'], {
-                        easing: theme.transitions.easing.easeOut,
-                        duration: 300,
+                        easing: theme.transitions.easing.sharp,
+                        duration: theme.transitions.duration.leavingScreen,
                     }),
+                    mt: 8,
+                    minHeight: 'calc(100vh - 64px)',
                 }}>
-                    <Toolbar />
                     <Outlet />
                 </Box>
             </Box>}

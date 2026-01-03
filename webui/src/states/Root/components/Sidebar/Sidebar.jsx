@@ -15,7 +15,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 
 const drawerWidth = 240;
 
-export const Sidebar = ({mobileOpen, toggleOpen, isMobile}) => {
+export const Sidebar = ({open, onClose, isMobile}) => {
     const theme = useTheme();
     const location = useLocation();
     const navigate = useNavigate();
@@ -23,6 +23,11 @@ export const Sidebar = ({mobileOpen, toggleOpen, isMobile}) => {
     const isSelected = (path) => {
         if (path === "/") return location.pathname === "/";
         return location.pathname.startsWith(path);
+    }
+
+    const handleNavigate = (path) => {
+        navigate(path.replace("/*", ""));
+        if (isMobile) onClose();
     }
 
     const drawerContent = (
@@ -46,10 +51,7 @@ export const Sidebar = ({mobileOpen, toggleOpen, isMobile}) => {
                     <ListItem key={route.path} disablePadding sx={{ mb: 0.5 }}>
                         <ListItemButton 
                             selected={isSelected(route.path)}
-                            onClick={() => {
-                                navigate(route.path.replace("/*", ""));
-                                if (isMobile) toggleOpen();
-                            }}
+                            onClick={() => handleNavigate(route.path)}
                             sx={{
                                 borderRadius: 2,
                                 transition: theme.transitions.create(['background-color', 'transform'], {
@@ -85,15 +87,20 @@ export const Sidebar = ({mobileOpen, toggleOpen, isMobile}) => {
 
     return (
         <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={toggleOpen}
+            variant={isMobile ? "temporary" : "persistent"}
+            open={open}
+            onClose={onClose}
             ModalProps={{ keepMounted: true }}
             sx={{
+                width: drawerWidth,
+                flexShrink: 0,
                 '& .MuiDrawer-paper': { 
                     boxSizing: 'border-box', 
                     width: drawerWidth,
-                    transition: theme.transitions.create('transform', {
+                    borderRight: '1px solid',
+                    borderColor: 'divider',
+                    backgroundColor: 'background.paper',
+                    transition: theme.transitions.create(['transform', 'width'], {
                         easing: theme.transitions.easing.easeOut,
                         duration: 300,
                     }),

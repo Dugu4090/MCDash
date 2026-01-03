@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {deleteRequest, downloadRequest, jsonRequest, patchRequest, postRequest} from "@/common/utils/RequestUtil.js";
+import {deleteRequest, downloadRequest, jsonRequest, postRequest} from "@/common/utils/RequestUtil.js";
 import {useLocation, useNavigate} from "react-router-dom";
 import FileEditor from "@/states/Root/pages/Files/components/FileEditor";
 import FileDropdown from "@/states/Root/pages/Files/components/FileDropdown";
 import FileView from "@/states/Root/pages/Files/components/FileView";
 import FileHeader from "@/states/Root/pages/Files/components/FileHeader";
-import {Alert, Checkbox, FormControlLabel, Snackbar, Stack} from "@mui/material";
-import {Archive, Delete, Download, Unarchive} from "@mui/icons-material";
+import {Alert, Snackbar} from "@mui/material";
 import {t} from "i18next";
 
 export const Files = () => {
@@ -25,6 +24,10 @@ export const Files = () => {
     const handleContextMenu = (event, file) => {
         event.preventDefault();
         setContextMenu(contextMenu === null ? {mouseX: event.clientX + 2, mouseY: event.clientY - 6, file} : null);
+    };
+
+    const closeContextMenu = () => {
+        setContextMenu(null);
     };
 
     const changeDirectory = (newDirectory) => {
@@ -55,6 +58,9 @@ export const Files = () => {
         } else {
             setSelectedFiles([...selectedFiles, file.name]);
         }
+        if (selectedFiles.length > 0 || selectedFiles.includes(file.name)) {
+            setSelectionMode(true);
+        }
     };
 
     const toggleSelectAll = () => {
@@ -65,13 +71,18 @@ export const Files = () => {
         }
     };
 
+    const clearSelection = () => {
+        setSelectedFiles([]);
+        setSelectionMode(false);
+    };
+
     const archiveSelected = async () => {
         if (selectedFiles.length === 0) return;
         setSnackbar(t("files.archiving"));
         try {
             await postRequest("filebrowser/archive", {path: "." + directory, files: selectedFiles});
             setSnackbar(t("files.archived"));
-            setSelectedFiles([]);
+            clearSelection();
             updateFiles();
         } catch {
             setSnackbar(t("files.archive_failed"));
@@ -82,9 +93,9 @@ export const Files = () => {
         if (selectedFiles.length === 0) return;
         setSnackbar(t("files.unarchiving"));
         try {
-            await postRequest("filebrowser/unarchive", {path: "." + directory, files: selectedFiles});
+            await postRequest("filebrowser/archive", {path: "." + directory, files: selectedFiles});
             setSnackbar(t("files.unarchived"));
-            setSelectedFiles([]);
+            clearSelection();
             updateFiles();
         } catch {
             setSnackbar(t("files.unarchive_failed"));
@@ -104,7 +115,7 @@ export const Files = () => {
                 }
             }
             setSnackbar(t("files.deleted"));
-            setSelectedFiles([]);
+            clearSelection();
             updateFiles();
         } catch {
             setSnackbar(t("files.delete_failed"));
@@ -135,8 +146,7 @@ export const Files = () => {
         if (location.pathname === "/files") {
             setDirectory("/");
             setCurrentFile(null);
-            setSelectedFiles([]);
-            setSelectionMode(false);
+            clearSelection();
         }
     }, [location.pathname]);
 
@@ -150,20 +160,23 @@ export const Files = () => {
             </Snackbar>
 
             <FileDropdown setFiles={setFiles} setContextMenu={setContextMenu} contextMenu={contextMenu}
-                          directory={directory} setSnackbar={setSnackbar} />
+                          directory={directory} setSnackbar={setSnackbar} closeMenu={closeContextMenu}/>
 
             <FileHeader directory={directory} currentFile={currentFile} setDirectory={setDirectory}
                         setCurrentFile={setCurrentFile} updateFiles={updateFiles} setSnackbar={setSnackbar}
                         selectedCount={selectedFiles.length} selectionMode={selectionMode} setSelectionMode={setSelectionMode}
                         onSelectAll={toggleSelectAll} onArchive={archiveSelected} onUnarchive={unarchiveSelected}
-                        onDelete={deleteSelected} onDownload={downloadSelected} allSelected={selectedFiles.length === files.length && files.length > 0}/>
+                        onDelete={deleteSelected} onDownload={downloadSelected} 
+                        allSelected={selectedFiles.length === files.length && files.length > 0}
+                        clearSelection={clearSelection}/>
 
             {!currentFile && <FileView files={files} changeDirectory={changeDirectory} click={click}
                                         handleContextMenu={handleContextMenu} selectionMode={selectionMode}
-                                        selectedFiles={selectedFiles} toggleSelection={toggleFileSelection} />}
+                                        selectedFiles={selectedFiles} toggleSelection={toggleFileSelection}
+                                        directory={directory}/>}
 
             {currentFile && <FileEditor currentFile={currentFile} directory={directory}
-                                        setSnackbar={setSnackbar} />}
+                                        setSnackbar={setSnackbar} setCurrentFile={setCurrentFile}/>}
         </>
     );
 }
