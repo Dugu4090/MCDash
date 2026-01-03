@@ -10,6 +10,7 @@ import de.gnmyt.mcdash.api.json.ArrayBuilder;
 import de.gnmyt.mcdash.api.json.NodeBuilder;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 
@@ -83,40 +84,43 @@ public class StoreRoute extends DefaultHandler {
                 .addQueryParameter("type", "plugin")
                 .build();
 
-        okhttp3.Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute();
-
-        if (httpResponse.code() != 200) {
-            return plugins;
-        }
-
-        mapper.readTree(httpResponse.body().string()).forEach(item -> {
-            String fileType = item.has("file") && item.get("file").has("type") ? item.get("file").get("type").asText() : "";
-            if (fileType.equals(".jar")) {
-                String icon = null;
-                if (item.has("icon") && item.get("icon").has("data")) {
-                    icon = item.get("icon").get("data").asText();
-                    if (icon.isEmpty()) icon = null;
-                }
-
-                String description = "";
-                if (item.has("tag")) description = item.get("tag").asText();
-                else if (item.has("description")) description = item.get("description").asText();
-
-                String version = "1.0";
-                if (item.has("version")) version = item.get("version").asText();
-                else if (item.has("currentVersion")) version = item.get("currentVersion").asText();
-
-                plugins.add(new PluginInfo(
-                        "spiget_" + item.get("id").asInt(),
-                        item.get("name").asText(),
-                        description,
-                        icon,
-                        item.has("downloads") ? item.get("downloads").asInt() : 0,
-                        version,
-                        true
-                ));
+        try (Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute()) {
+            if (httpResponse.code() != 200) {
+                return plugins;
             }
-        });
+
+            String body = httpResponse.body() != null ? httpResponse.body().string() : "";
+            if (body.isEmpty()) return plugins;
+
+            mapper.readTree(body).forEach(item -> {
+                String fileType = item.has("file") && item.get("file").has("type") ? item.get("file").get("type").asText() : "";
+                if (fileType.equals(".jar")) {
+                    String icon = null;
+                    if (item.has("icon") && item.get("icon").has("data")) {
+                        icon = item.get("icon").get("data").asText();
+                        if (icon.isEmpty()) icon = null;
+                    }
+
+                    String description = "";
+                    if (item.has("tag")) description = item.get("tag").asText();
+                    else if (item.has("description")) description = item.get("description").asText();
+
+                    String version = "1.0";
+                    if (item.has("version")) version = item.get("version").asText();
+                    else if (item.has("currentVersion")) version = item.get("currentVersion").asText();
+
+                    plugins.add(new PluginInfo(
+                            "spiget_" + item.get("id").asInt(),
+                            item.get("name").asText(),
+                            description,
+                            icon,
+                            item.has("downloads") ? item.get("downloads").asInt() : 0,
+                            version,
+                            true
+                    ));
+                }
+            });
+        }
 
         return plugins;
     }
@@ -134,30 +138,33 @@ public class StoreRoute extends DefaultHandler {
 
         HttpUrl url = urlBuilder.build();
 
-        okhttp3.Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute();
+        try (Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute()) {
+            if (httpResponse.code() != 200) {
+                return plugins;
+            }
 
-        if (httpResponse.code() != 200) {
-            return plugins;
-        }
+            String body = httpResponse.body() != null ? httpResponse.body().string() : "";
+            if (body.isEmpty()) return plugins;
 
-        JsonNode root = mapper.readTree(httpResponse.body().string());
-        if (root.has("result")) {
-            root.get("result").forEach(project -> {
-                String name = project.has("name") ? project.get("name").asText() : "Unknown";
-                String namespace = project.has("namespace") ? project.get("namespace").asText() : "";
-                String description = project.has("description") ? project.get("description").asText() : "";
-                String avatarUrl = project.has("avatarUrl") ? project.get("avatarUrl").asText() : null;
+            JsonNode root = mapper.readTree(body);
+            if (root.has("result")) {
+                root.get("result").forEach(project -> {
+                    String name = project.has("name") ? project.get("name").asText() : "Unknown";
+                    String namespace = project.has("namespace") ? project.get("namespace").asText() : "";
+                    String description = project.has("description") ? project.get("description").asText() : "";
+                    String avatarUrl = project.has("avatarUrl") ? project.get("avatarUrl").asText() : null;
 
-                plugins.add(new PluginInfo(
-                        "hangar_" + namespace,
-                        name,
-                        description,
-                        avatarUrl,
-                        0,
-                        "latest",
-                        true
-                ));
-            });
+                    plugins.add(new PluginInfo(
+                            "hangar_" + namespace,
+                            name,
+                            description,
+                            avatarUrl,
+                            0,
+                            "latest",
+                            true
+                    ));
+                });
+            }
         }
 
         return plugins;
@@ -200,15 +207,22 @@ public class StoreRoute extends DefaultHandler {
             case "hangar":
                 String namespace = actualId;
                 HttpUrl infoUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace).newBuilder().build();
-                okhttp3.Response infoResponse = client.newCall(new okhttp3.Request.Builder().url(infoUrl).build()).execute();
 
-                if (infoResponse.code() != 200) {
-                    response.code(404).message("The plugin with the id '" + pluginId + "' does not exist");
-                    return;
+                try (Response infoResponse = client.newCall(new okhttp3.Request.Builder().url(infoUrl).build()).execute()) {
+                    if (infoResponse.code() != 200) {
+                        response.code(404).message("The plugin with the id '" + pluginId + "' does not exist");
+                        return;
+                    }
+
+                    String infoBody = infoResponse.body() != null ? infoResponse.body().string() : "";
+                    if (infoBody.isEmpty()) {
+                        response.code(404).message("The plugin with the id '" + pluginId + "' does not exist");
+                        return;
+                    }
+
+                    JsonNode hangarNode = mapper.readTree(infoBody);
+                    pluginName = hangarNode.has("name") ? hangarNode.get("name").asText() : namespace;
                 }
-
-                JsonNode hangarNode = mapper.readTree(infoResponse.body().string());
-                pluginName = hangarNode.has("name") ? hangarNode.get("name").asText() : namespace;
 
                 fileUrl = HANGAR_URL + "/projects/" + namespace + "/latest/download";
                 break;
@@ -217,19 +231,25 @@ public class StoreRoute extends DefaultHandler {
             default:
                 HttpUrl url = HttpUrl.parse(SPIGET_URL + "resources/" + URLEncoder.encode(actualId, UTF_8.toString())).newBuilder().build();
 
-                okhttp3.Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute();
+                try (Response httpResponse = client.newCall(new okhttp3.Request.Builder().url(url).build()).execute()) {
+                    if (httpResponse.code() != 200) {
+                        response.code(404).message("The item with the id '" + pluginId + "' does not exist");
+                        return;
+                    }
 
-                if (httpResponse.code() != 200) {
-                    response.code(404).message("The item with the id '" + pluginId + "' does not exist");
-                    return;
-                }
+                    String body = httpResponse.body() != null ? httpResponse.body().string() : "";
+                    if (body.isEmpty()) {
+                        response.code(404).message("The item with the id '" + pluginId + "' does not exist");
+                        return;
+                    }
 
-                JsonNode node = mapper.readTree(httpResponse.body().string());
-                pluginName = node.get("name").asText();
+                    JsonNode node = mapper.readTree(body);
+                    pluginName = node.get("name").asText();
 
-                if (!node.get("file").get("type").asText().equals(".jar")) {
-                    response.code(400).message("The item with the id '" + pluginId + "' is not a plugin");
-                    return;
+                    if (!node.get("file").get("type").asText().equals(".jar")) {
+                        response.code(400).message("The item with the id '" + pluginId + "' is not a plugin");
+                        return;
+                    }
                 }
 
                 fileUrl = SPIGET_URL + "resources/" + URLEncoder.encode(actualId, UTF_8.toString()) + "/download";
@@ -244,8 +264,11 @@ public class StoreRoute extends DefaultHandler {
             return;
         }
 
-        FileUtils.copyInputStreamToFile(client.newCall(new okhttp3.Request.Builder().url(fileUrl).build())
-                .execute().body().byteStream(), targetFile);
+        try (okhttp3.Response downloadResponse = client.newCall(new okhttp3.Request.Builder().url(fileUrl).build()).execute()) {
+            if (downloadResponse.body() != null) {
+                FileUtils.copyInputStreamToFile(downloadResponse.body().byteStream(), targetFile);
+            }
+        }
 
         runSync(() -> {
             try {
