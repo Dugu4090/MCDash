@@ -9,7 +9,7 @@ import ServerDown from "@/states/Root/pages/ServerDown";
 export const Root = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const {tokenValid, serverOnline} = useContext(TokenContext);
 
     const toggleSidebar = () => setSidebarOpen(prev => !prev);
@@ -21,13 +21,13 @@ export const Root = () => {
             {tokenValid === null && serverOnline === false && <ServerDown />}
 
             {tokenValid && <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-                <Header sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
-                <Sidebar open={sidebarOpen} onClose={toggleSidebar} isMobile={isMobile} />
+                <Header toggleSidebar={toggleSidebar} isMobile={isMobile} />
+                <Sidebar isMobile={isMobile} />
                 <Box component="main" sx={{ 
                     flexGrow: 1, 
                     p: 3,
-                    ml: sidebarOpen && !isMobile ? "240px" : 0,
-                    width: '100%',
+                    ml: "240px",
+                    width: 'calc(100% - 240px)',
                     mt: 8,
                 }}>
                     <Outlet />

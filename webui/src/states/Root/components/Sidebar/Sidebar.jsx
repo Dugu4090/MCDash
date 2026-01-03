@@ -4,7 +4,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 
 const drawerWidth = 240;
 
-export const Sidebar = ({open, onClose, isMobile}) => {
+export const Sidebar = ({isMobile}) => {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -15,7 +15,6 @@ export const Sidebar = ({open, onClose, isMobile}) => {
 
     const handleNavigate = (path) => {
         navigate(path.replace("/*", ""));
-        if (isMobile) onClose();
     }
 
     const drawerContent = (
@@ -26,23 +25,23 @@ export const Sidebar = ({open, onClose, isMobile}) => {
                 justifyContent: 'center',
                 py: 2,
                 minHeight: '64px',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
             }}>
                 <Stack direction="row" alignItems="center" gap={1.5}>
-                    <img src="/assets/img/favicon.png" alt="MCDash" width="40px" height="40px" style={{ borderRadius: 8 }} />
+                    <img src="/assets/img/favicon.png" alt="MCDash" width="36px" height="36px" style={{ borderRadius: 6 }} />
                     <Typography variant="h6" fontWeight={700}>MCDash</Typography>
                 </Stack>
             </Toolbar>
 
-            <Divider />
-
-            <List sx={{ px: 1, py: 1 }}>
+            <List sx={{ px: 1, py: 2 }}>
                 {sidebar.map((route) => (
                     <ListItem key={route.path} disablePadding sx={{ mb: 0.5 }}>
                         <ListItemButton 
                             selected={isSelected(route.path)}
                             onClick={() => handleNavigate(route.path)}
                             sx={{
-                                borderRadius: 1.5,
+                                borderRadius: 1,
                                 '&:hover': {
                                     bgcolor: 'action.hover',
                                 },
@@ -66,10 +65,7 @@ export const Sidebar = ({open, onClose, isMobile}) => {
 
     return (
         <Drawer
-            variant={isMobile ? "temporary" : "persistent"}
-            open={open}
-            onClose={onClose}
-            ModalProps={{ keepMounted: true }}
+            variant={isMobile ? "temporary" : "permanent"}
             sx={{
                 width: drawerWidth,
                 flexShrink: 0,

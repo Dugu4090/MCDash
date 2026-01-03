@@ -6,7 +6,7 @@ import {useLocation} from "react-router-dom";
 import AccountMenu from "@/states/Root/components/Header/components/AccountMenu";
 import {t} from "i18next";
 
-export const Header = ({sidebarOpen, toggleSidebar, isMobile}) => {
+export const Header = ({toggleSidebar, isMobile}) => {
     const location = useLocation();
 
     const retrieveUsername = () => atob(localStorage.getItem("token")).split(":")[0];
@@ -36,10 +36,12 @@ export const Header = ({sidebarOpen, toggleSidebar, isMobile}) => {
             <AccountMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>
 
             <Toolbar>
-                <IconButton aria-label="toggle sidebar" edge="start" onClick={toggleSidebar}
-                            sx={{ mr: 2 }}>
-                    <MenuIcon />
-                </IconButton>
+                {isMobile && (
+                    <IconButton aria-label="toggle sidebar" edge="start" onClick={toggleSidebar}
+                                sx={{ mr: 2 }}>
+                        <MenuIcon />
+                    </IconButton>
+                )}
                 <Typography variant="h6">{getTitleByPath()}</Typography>
 
                 <Stack sx={{ ml: "auto" }} direction="row">
