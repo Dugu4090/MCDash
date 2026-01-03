@@ -135,6 +135,10 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>mojang</id>
+            <url>https://repo.mojang.org/public</url>
+        </repository>
     </repositories>
 
     <dependencies>

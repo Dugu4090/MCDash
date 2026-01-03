@@ -48,7 +48,8 @@ export const PluginStore = ({search, closeStore}) => {
             <Stack direction="row" sx={{my: 1, alignItems: "baseline"}} flexWrap="wrap">
                 {plugins.map((plugin) => <StoreItem {...plugin} key={plugin.id} closeStore={closeStore}
                                                     installed={currentPlugins.find((p) => p.path
-                                                        ?.startsWith("Managed-" + plugin.id + ".jar"))} />)}
+                                                        ?.startsWith("Managed-" + plugin.id + ".jar") || p.path
+                                                        ?.startsWith(plugin.name.replace(/[^a-zA-Z0-9]/g, "_") + ".jar"))} />)}
 
                 {plugins.length === 0 && <Typography sx={{width: "100%"}} textAlign="center">{t("plugins.no_plugins")}</Typography>}
             </Stack>

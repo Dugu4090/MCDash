@@ -7,7 +7,7 @@ import ResourceIcon from "@/common/assets/images/resource.webp";
 import {prettyDownloadCount} from "@/states/Root/pages/Plugins/components/PluginStore/components/StoreItem/utils.js";
 import {t} from "i18next";
 
-export const StoreItem = ({id, name, description, icon, downloads, closeStore, installed}) => {
+export const StoreItem = ({id, name, description, icon, downloads, source, closeStore, installed}) => {
     const {updatePlugins} = useContext(PluginsContext);
     const [installing, setInstalling] = useState(false);
     const [error, setError] = useState("");
@@ -26,15 +26,27 @@ export const StoreItem = ({id, name, description, icon, downloads, closeStore, i
         });
     }
 
+    const getResourceUrl = () => {
+        if (source === "hangar") {
+            return "https://hangar.papermc.io/" + id.replace("hangar_", "");
+        }
+        return "https://www.spigotmc.org/resources/" + id.replace("spiget_", "");
+    }
+
     return (
         <Box backgroundColor="background.darker" borderRadius={2} padding={2} sx={{mr: 1, mt: 1, width: {xs: "100%", lg: 300}}}>
             <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                <Typography variant="h6" fontWeight={500}>{name}</Typography>
+                <Box>
+                    <Typography variant="h6" fontWeight={500}>{name}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{textTransform: "uppercase"}}>
+                        {source || "spiget"}
+                    </Typography>
+                </Box>
 
                 <Tooltip title={t("plugins.view_resource")}>
-                    <Link href={"https://www.spigotmc.org/resources/" + id} alt="icon" target="_blank">
+                    <Link href={getResourceUrl()} alt="icon" target="_blank">
                         <Box component="img" sx={{width: 40, height: 40, borderRadius: 50}}
-                             src={icon ? ("data:image/png;base64," + icon) : ResourceIcon} rel="noreferrer"/>
+                             src={icon ? (icon.startsWith("http") ? icon : "data:image/png;base64," + icon) : ResourceIcon} rel="noreferrer"/>
                     </Link>
                 </Tooltip>
             </Box>

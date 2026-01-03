@@ -6,7 +6,7 @@ import {useLocation} from "react-router-dom";
 import AccountMenu from "@/states/Root/components/Header/components/AccountMenu";
 import {t} from "i18next";
 
-export const Header = ({toggleSidebar, isMobile}) => {
+export const Header = ({toggleSidebar, isMobile, sidebarOpen}) => {
     const location = useLocation();
 
     const retrieveUsername = () => atob(localStorage.getItem("token")).split(":")[0];

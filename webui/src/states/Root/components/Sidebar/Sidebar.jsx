@@ -4,7 +4,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 
 const drawerWidth = 240;
 
-export const Sidebar = ({isMobile}) => {
+export const Sidebar = ({isMobile, open, onClose}) => {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -15,6 +15,9 @@ export const Sidebar = ({isMobile}) => {
 
     const handleNavigate = (path) => {
         navigate(path.replace("/*", ""));
+        if (isMobile && onClose) {
+            onClose();
+        }
     }
 
     const drawerContent = (
@@ -66,15 +69,20 @@ export const Sidebar = ({isMobile}) => {
     return (
         <Drawer
             variant={isMobile ? "temporary" : "permanent"}
+            open={isMobile ? open : true}
+            onClose={onClose}
             sx={{
                 width: drawerWidth,
                 flexShrink: 0,
+                zIndex: isMobile ? 1200 : 0,
                 '& .MuiDrawer-paper': { 
                     boxSizing: 'border-box', 
                     width: drawerWidth,
                     borderRight: '1px solid',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
+                    mt: isMobile ? 0 : '64px',
+                    height: isMobile ? '100%' : 'calc(100% - 64px)',
                 },
             }}
         >

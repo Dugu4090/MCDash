@@ -21,14 +21,15 @@ export const Root = () => {
             {tokenValid === null && serverOnline === false && <ServerDown />}
 
             {tokenValid && <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-                <Header toggleSidebar={toggleSidebar} isMobile={isMobile} />
-                <Sidebar isMobile={isMobile} />
+                <Header toggleSidebar={toggleSidebar} isMobile={isMobile} sidebarOpen={sidebarOpen} />
+                <Sidebar isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
                 <Box component="main" sx={{ 
                     flexGrow: 1, 
                     p: 3,
-                    ml: "240px",
-                    width: 'calc(100% - 240px)',
+                    ml: isMobile ? 0 : "240px",
+                    width: isMobile ? '100%' : 'calc(100% - 240px)',
                     mt: 8,
+                    transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out',
                 }}>
                     <Outlet />
                 </Box>
