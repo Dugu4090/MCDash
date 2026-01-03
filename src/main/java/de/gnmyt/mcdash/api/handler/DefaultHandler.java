@@ -59,13 +59,35 @@ public abstract class DefaultHandler implements HttpHandler {
                 return;
             }
 
-            if (!accountManager.isValidPassword(authCredentials[0], authCredentials[1])) {
+            if (!isValidCredentials(authCredentials[0], authCredentials[1])) {
                 controller.code(401).message("The provided credentials are invalid");
                 return;
             }
 
             execute(request, controller);
         });
+    }
+
+    /**
+     * Validates credentials against registered accounts or default credentials
+     * @param username The username to check
+     * @param password The password to check
+     * @return true if credentials are valid
+     */
+    private boolean isValidCredentials(String username, String password) {
+        // First check registered accounts
+        if (accountManager.accountExists(username)) {
+            return accountManager.isValidPassword(username, password);
+        }
+
+        // Then check default credentials from config
+        if (manager.hasDefaultCredentials()) {
+            String defaultUser = manager.getDefaultUsername();
+            String defaultPass = manager.getDefaultPassword();
+            return username.equals(defaultUser) && password.equals(defaultPass);
+        }
+
+        return false;
     }
 
     /**

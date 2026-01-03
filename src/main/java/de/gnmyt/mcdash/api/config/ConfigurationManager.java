@@ -35,7 +35,35 @@ public class ConfigurationManager {
         // Wrapper configuration
         config.set("port", 7867);
 
+        // Default credentials
+        config.set("default-username", "admin");
+        config.set("default-password", "admin");
+
         saveConfig();
+    }
+
+    /**
+     * Gets the default username
+     * @return the default username or null if not set
+     */
+    public String getDefaultUsername() {
+        return getString("default-username");
+    }
+
+    /**
+     * Gets the default password
+     * @return the default password or null if not set
+     */
+    public String getDefaultPassword() {
+        return getString("default-password");
+    }
+
+    /**
+     * Checks if default credentials are enabled
+     * @return true if default credentials are configured
+     */
+    public boolean hasDefaultCredentials() {
+        return getDefaultUsername() != null && getDefaultPassword() != null;
     }
 
     /**
