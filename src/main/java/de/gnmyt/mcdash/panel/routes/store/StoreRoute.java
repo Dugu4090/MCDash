@@ -293,7 +293,6 @@ public class StoreRoute extends DefaultHandler {
                 HttpUrl infoUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace).newBuilder().build();
 
                 String owner = "";
-                String latestVersion = "";
 
                 try (Response infoResponse = client.newCall(new okhttp3.Request.Builder().url(infoUrl).build()).execute()) {
                     if (infoResponse.code() != 200) {
@@ -315,18 +314,33 @@ public class StoreRoute extends DefaultHandler {
                     }
                 }
 
-                HttpUrl versionUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace + "/latest").newBuilder().build();
-                try (Response versionResponse = client.newCall(new okhttp3.Request.Builder().url(versionUrl).build()).execute()) {
-                    if (versionResponse.code() == 200 && versionResponse.body() != null) {
-                        latestVersion = versionResponse.body().string();
+                HttpUrl versionsUrl = HttpUrl.parse(HANGAR_URL + "/projects/" + namespace + "/versions?limit=1").newBuilder().build();
+                fileUrl = null;
+                try (Response versionsResponse = client.newCall(new okhttp3.Request.Builder().url(versionsUrl).build()).execute()) {
+                    if (versionsResponse.code() == 200 && versionsResponse.body() != null) {
+                        String versionsBody = versionsResponse.body().string();
+                        if (!versionsBody.isEmpty()) {
+                            JsonNode versionsRoot = mapper.readTree(versionsBody);
+                            if (versionsRoot.has("result") && versionsRoot.get("result").size() > 0) {
+                                JsonNode latestVersionNode = versionsRoot.get("result").get(0);
+                                if (latestVersionNode.has("downloads") && latestVersionNode.get("downloads").has("PAPER")) {
+                                    JsonNode paperDownload = latestVersionNode.get("downloads").get("PAPER");
+                                    if (paperDownload.has("downloadUrl") && !paperDownload.get("downloadUrl").isNull()) {
+                                        fileUrl = paperDownload.get("downloadUrl").asText();
+                                    } else if (paperDownload.has("externalUrl") && !paperDownload.get("externalUrl").isNull()) {
+                                        response.code(400).message(pluginName + " requires external download: " + paperDownload.get("externalUrl").asText());
+                                        return;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
-                if (latestVersion.isEmpty()) {
-                    latestVersion = "latest";
+                if (fileUrl == null) {
+                    response.code(404).message("Could not find download URL for " + pluginName);
+                    return;
                 }
-
-                fileUrl = HANGAR_CDN_URL + "/plugins/" + owner + "/" + namespace + "/versions/" + latestVersion + "/PAPER/" + namespace + "-" + latestVersion + ".jar";
                 break;
 
             case "spiget":
