@@ -34,7 +34,7 @@
                 <executions>
                     <execution>
                         <id>npm install</id>
-                        <phase>pre-clean</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
@@ -48,7 +48,7 @@
                     </execution>
                     <execution>
                         <id>npm run build</id>
-                        <phase>pre-clean</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
