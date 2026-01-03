@@ -34,6 +34,6 @@ export const Plugins = () => {
             </Stack>}
 
             {storeOpen && <PluginStore search={currentSearch} closeStore={() => setStoreOpen(false)} />}
-        </>
+        </Box>
     )
 }
